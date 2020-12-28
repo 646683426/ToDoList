@@ -1,0 +1,174 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #cdcdcd;
+}
+
+h2 {
+    display: flex;
+    justify-content: space-between;
+    width: 96vmin;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
+/* 顶部 */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(47, 47, 47, 0.98);
+    height: 6vh;
+}
+
+header input {
+    width: 45vmin;
+    height: 3vh;
+    font-size: 12px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.title {
+    font-size: 20px;
+    margin: 10px 16vmin 10px 0;
+    color: #ddd;
+}
+
+/* 内容 */
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#input {
+    width: 78vmin;
+    height: 30px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.span {
+    height: 30px;
+}
+
+main p {
+    width: 80vmin;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    box-sizing: border-box;
+    height: 30px;
+    padding:0px 1vmin;
+    line-height: 30px;
+}
+
+main p:hover {
+    cursor: text;
+}
+
+/* 按钮 */
+.check-box {
+    width: 25px;
+    height: 25px;
+    border: 0.1px solid #ccc;
+    border-radius: 5px;
+}
+
+.check-box:hover {
+    cursor: pointer;
+}
+
+.btn {
+    width: 25px;
+    height: 25px;
+    border: 6px double #ccc;
+    border-radius: 5px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn:hover {
+    cursor: pointer;
+    color: #ccc;
+    background-color: rgb(145, 73, 73);
+}
+
+/* 进行部分 */
+.do-content {
+    margin: 20px 0;
+}
+
+.to-do {
+    list-style: none;
+    width: 96vmin;
+    height: 30px;
+    padding: 5px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    background-color: pink;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+}
+
+/* 完成部分 */
+.done-content {
+    margin-bottom: 20px;
+}
+
+.done {
+    list-style: none;
+    width: 96vmin;
+    height: 35px;
+    padding: 5px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    background-color: #bfa;
+    box-sizing: border-box;
+    border-radius: 5px;
+    opacity: 0.5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+}
+
+/* 底部 */
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.clean {
+    width: 96vmin;
+    height: 35px;
+    border: 0.1px solid #ccc;
+    font-size: 18px;
+    position: fixed;
+    bottom: 0;
+    outline: none;
+    background-color:#adabab;
+}
+
+@media (any-hover: hover) {
+    .clean:hover {
+        cursor: pointer;
+        color: #ccc;
+        background-color: rgb(145, 73, 73);
+    }
+}
