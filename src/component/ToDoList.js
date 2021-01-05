@@ -1,86 +1,55 @@
 import React from 'react';
 import '../style/ToDoList.css';
 
-class ToDo extends React.Component {
-
+class List extends React.Component {
     render() {
-        let toDo = this.props.toDo;
-        toDo = toDo.map((item, index) => {
+        let { list, changeState, onBlur, onClick, remove, state, liClass, divClass,defaultChecked } = this.props;
+        list = list.map((item, index) => {
             return (
                 <li
-                    key={item.id} className='to-do'>
+                    key={item.id} className={liClass}>
                     <input
                         className='check-box'
-                        tindex={index}
+                        index={state + index}
                         type='checkbox'
-                        onClick={(e) => { this.props.haveDone(e) }} />
+                        state={state}
+                        defaultChecked={defaultChecked}
+                        onClick={(e) => { changeState(e, state) }} />
                     <span
-                        className='span'
-                        onClick={(e) => { this.props.change(e) }}>
-                        <p
-                            index={index}>
-                            {item.title}
-                        </p>
+                        className='span'>
+                        {item.isClick ?
+                            <input
+                                index={state + index}
+                                id='input'
+                                defaultValue={item.title}
+                                autoFocus
+                                onBlur={(e) => { onBlur(e, state) }}
+                            />
+                            :
+                            <p
+                                onClick={(e) => { onClick(e, state) }}
+                                index={state + index}>
+                                {item.title}
+                            </p>
+                        }
                     </span>
                     <button
                         className='btn'
-                        tindex={index}
-                        onClick={(e) => { this.props.remove(e) }}>
+                        index={state + index}
+                        state={state}
+                        onClick={(e) => { remove(e, state) }}>
                         -
                     </button>
                 </li>
             )
         })
         return (
-            <div className='do-content'>
+            <div className={divClass}>
                 <h2>
                     {this.props.children}
                 </h2>
                 <ul>
-                    {toDo}
-                </ul>
-            </div>
-        )
-    }
-}
-
-class Done extends React.Component {
-    render() {
-        let done = this.props.done
-        done = done.map((item, index) => {
-            return (
-                <li key={item.id} className='done'>
-                    <input
-                        defaultChecked
-                        className='check-box'
-                        dindex={index}
-                        type='checkbox'
-                        onClick={(e) => { this.props.doing(e) }} />
-                    <span
-                        className='span'
-                        onClick={(e) => { this.props.change(e) }}>
-                        <p
-                            index={index}>
-                            {item.title}
-                        </p>
-                    </span>
-                    <button
-                        className='btn'
-                        defaultChecked='true'
-                        dindex={index}
-                        onClick={(e) => { this.props.remove(e) }}>
-                        -
-                    </button>
-                </li>
-            )
-        })
-        return (
-            <div className='done-content'>
-                <h2>
-                    {this.props.children}
-                </h2>
-                <ul>
-                    {done}
+                    {list}
                 </ul>
             </div>
         )
@@ -89,12 +58,15 @@ class Done extends React.Component {
 
 export default class ToDoList extends React.Component {
 
+    toDoRef = React.createRef();
+
     state = {
         toDo: [],
-        done: [],
+        done: []
     }
 
     componentDidMount() {
+        //在缓存中获取任务
         this.setState({
             toDo: localStorage.getItem('toDo') !== null ? JSON.parse(localStorage.getItem('toDo')) : [],
             done: localStorage.getItem('done') !== null ? JSON.parse(localStorage.getItem('done')) : []
@@ -111,22 +83,31 @@ export default class ToDoList extends React.Component {
                         onKeyDown={(e) => { this.toDo(e) }} />
                 </header>
                 <main>
-                    <ToDo
-                        toDo={this.state.toDo}
+                    <List
+                        list={this.state.toDo}
                         remove={this.remove}
-                        haveDone={this.haveDone}
-                        change={this.change}>
+                        changeState={this.changeState}
+                        state={'toDo'}
+                        liClass={'to-do'}
+                        divClass={'do-content'}
+                        onBlur={this.changeDone}
+                        onClick={this.change}>
                         <span>正在进行:</span>
                         <span className='to-do-count'>{this.state.toDo.length}</span>
-                    </ToDo>
-                    <Done
-                        done={this.state.done}
+                    </List>
+                    <List
+                        list={this.state.done}
                         remove={this.remove}
-                        doing={this.doing}
-                        change={this.doneChange}>
+                        changeState={this.changeState}
+                        state={'done'}
+                        liClass={'done'}
+                        divClass={'done-content'}
+                        defaultChecked={'true'}
+                        onBlur={this.changeDone}
+                        onClick={this.change}>
                         <span>已经完成:</span>
                         <span className='done-count'>{this.state.done.length}</span>
-                    </Done>
+                    </List>
                 </main>
                 <footer>
                     <button
@@ -139,6 +120,7 @@ export default class ToDoList extends React.Component {
         )
     }
 
+    //向浏览器缓存添加任务
     setToDo = () => {
         localStorage.setItem('toDo', JSON.stringify(this.state.toDo))
     }
@@ -147,7 +129,7 @@ export default class ToDoList extends React.Component {
         localStorage.setItem('done', JSON.stringify(this.state.done))
     }
 
-    // 添加进行的任务
+    // 按下回车后，添加进行任务
     toDo = (e) => {
         let id = Date.now();
         if (e.code === 'Enter') {
@@ -156,7 +138,7 @@ export default class ToDoList extends React.Component {
             } else {
                 this.setState(
                     {
-                        toDo: [{ id: id, title: e.target.value }, ...this.state.toDo]
+                        toDo: [{ id: id, title: e.target.value, isClick: false }, ...this.state.toDo]
                     },
                     () => {
                         this.setToDo()
@@ -167,102 +149,102 @@ export default class ToDoList extends React.Component {
         }
     }
 
-    // 修改进行中的内容
-    change = (e) => {
+    // 点击进行修改
+    change = (e, list) => {
         const index = e.target.getAttribute('index');
-        let list = this;
-        let text = this.state.toDo[index].title;
-        let id = this.state.toDo[index].id
-        if (e.target && e.target.nodeName === 'P') {
-            e.target.parentNode.innerHTML = "<input  value=" + text + " index=" + index + " id='input'/>";
+        if (list === 'toDo') {
+            let toDo = this.state.toDo;
+            toDo[index].isClick = !toDo[index].isClick;
+            this.setState({
+                toDo: toDo
+            })
+        } else {
+            let done = this.state.done;
+            done[index].isClick = !done[index].isClick;
+            this.setState({
+                done: done
+            })
         }
-        const input = document.getElementById('input');
-        input.focus();
-        input.setSelectionRange(0, input.value.length);
-        input.onblur = function () {
-            if (input.value.length === 0) {
-                input.parentNode.innerHTML = "<p index=" + index + " >" + text + "</p>";
-                alert("内容不能为空");
-            }
-            else {
-                list.state.toDo.splice([index], 1, { id: id, title: input.value })
-                list.setState(
+    }
+
+    //完成修改
+    changeDone = (e, list) => {
+        const index = e.target.getAttribute('index');
+        if (list === 'toDo') {
+            list = this.state.toDo
+        } else {
+            list = this.state.done
+        }
+        let isClick = list[index].isClick;
+        let id = list[index].id;
+        let text;
+        if (e.target.value.length === 0) {
+            text = list[index].title;
+            alert('内容不能为空')
+            list.splice([index], 1, { id: id, title: text, isClick: !isClick })
+            list === this.state.toDo ?
+                this.setState({
+                    toDo: list
+                }) :
+                this.setState({
+                    done: list
+                })
+        } else {
+            text = e.target.value;
+            list.splice([index], 1, { id: id, title: text, isClick: !isClick })
+            list === this.state.toDo ?
+                this.setState(
                     {
-                        toDo: list.state.toDo
+                        toDo: list
                     },
                     () => {
-                        list.setToDo();
+                        this.setToDo();
                     }
-                )
-                input.parentNode.innerHTML = "<p index=" + index + " >" + input.value + "</p>";
-            }
-        };
-    }
-
-    // 修改已完成的内容
-    doneChange = (e) => {
-        const index = e.target.getAttribute('index');
-        let list = this;
-        let text = this.state.done[index].title;
-        let id = this.state.done[index].id
-        if (e.target && e.target.nodeName === 'P') {
-            e.target.parentNode.innerHTML = "<input  value=" + text + " index=" + index + " id='input'/>";
-        }
-        const input = document.getElementById('input');
-        input.focus();
-        input.setSelectionRange(0, input.value.length);
-        input.onblur = function () {
-            if (input.value.length === 0) {
-                input.parentNode.innerHTML = "<p index=" + index + " >" + text + "</p>";
-                alert("内容不能为空");
-            }
-            else {
-                list.state.done.splice([index], 1, { id: id, title: input.value })
-                list.setState(
+                ) :
+                this.setState(
                     {
-                        done: list.state.done
+                        done: list
                     },
                     () => {
-                        list.setDone();
+                        this.setDone();
                     }
                 )
-                input.parentNode.innerHTML = "<p index=" + index + " >" + input.value + "</p>";
-            }
-        };
+        }
     }
 
-    //从进行变成完成
-    haveDone = (e) => {
-        this.setState(
-            {
-                done: [{ id: this.state.done.length, title: e.target.parentNode.getElementsByTagName('span')[0].getElementsByTagName('p')[0].innerHTML }, ...this.state.done],
-            },
-            () => {
-                this.setDone();
-            }
-        )
-        this.remove(e);
-    }
-
-    // 从完成变成进行
-    doing = (e) => {
-        this.setState(
-            {
-                toDo: [{ id: this.state.done.length, title: e.target.parentNode.getElementsByTagName('span')[0].getElementsByTagName('p')[0].innerHTML }, ...this.state.toDo],
-            },
-            () => {
-                this.setToDo();
-            }
-        )
-        this.remove(e);
+    //更改任务完成状态
+    changeState = (e, state) => {
+        let id = Date.now();
+        if (state === 'toDo') {
+            this.setState(
+                {
+                    done: [{ id: id, title: e.target.parentNode.getElementsByTagName('span')[0].getElementsByTagName('p')[0].innerHTML }, ...this.state.done],
+                },
+                () => {
+                    this.setDone();
+                }
+            )
+            this.remove(e, state);
+        } else {
+            this.setState(
+                {
+                    toDo: [{ id: id, title: e.target.parentNode.getElementsByTagName('span')[0].getElementsByTagName('p')[0].innerHTML }, ...this.state.toDo],
+                },
+                () => {
+                    this.setToDo();
+                }
+            )
+            this.remove(e, state);
+        }
     }
 
     // 删除单个任务
-    remove = (e) => {
-        e.target.getAttribute('tindex') !== null ?
+    remove = (e, state) => {
+        let index = e.target.getAttribute('index').slice(4);
+        state === 'toDo' ?
             this.setState(
                 {
-                    del: this.state.toDo.splice(e.target.getAttribute('tindex'), 1)
+                    del: this.state.toDo.splice(index, 1)
                 },
                 () => {
                     this.setToDo();
@@ -270,7 +252,7 @@ export default class ToDoList extends React.Component {
             )
             : this.setState(
                 {
-                    del: this.state.done.splice(e.target.getAttribute('dindex'), 1)
+                    del: this.state.done.splice(index, 1)
                 },
                 () => {
                     this.setDone();
