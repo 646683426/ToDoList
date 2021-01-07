@@ -58,8 +58,6 @@ class List extends React.Component {
 
 export default class ToDoList extends React.Component {
 
-    toDoRef = React.createRef();
-
     state = {
         toDo: [],
         done: []
@@ -150,9 +148,9 @@ export default class ToDoList extends React.Component {
     }
 
     // 点击进行修改
-    change = (e, list) => {
-        const index = e.target.getAttribute('index');
-        if (list === 'toDo') {
+    change = (e, state) => {
+        let index = e.target.getAttribute('index').slice(4);
+        if (state === 'toDo') {
             let toDo = this.state.toDo;
             toDo[index].isClick = !toDo[index].isClick;
             this.setState({
@@ -168,9 +166,10 @@ export default class ToDoList extends React.Component {
     }
 
     //完成修改
-    changeDone = (e, list) => {
-        const index = e.target.getAttribute('index');
-        if (list === 'toDo') {
+    changeDone = (e, state) => {
+        let index = e.target.getAttribute('index').slice(4);
+        let list;
+        if (state === 'toDo') {
             list = this.state.toDo
         } else {
             list = this.state.done
